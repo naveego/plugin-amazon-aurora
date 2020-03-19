@@ -52,7 +52,7 @@ namespace PluginAmazonAurora.API.Replication
                 case PropertyType.Blob:
                     return "longblob";
                 case PropertyType.String:
-                    return "varchar(1024)";
+                    return "varchar(255)";
                 case PropertyType.Text:
                     return "longtext";
                 default:

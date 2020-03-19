@@ -60,10 +60,10 @@ namespace PluginAmazonAurora.API.Replication
             // check if changes are needed
             if (previousMetaData == null)
             {
-                Logger.Info($"No Previous metadata creating buckets job: {request.DataVersions.JobId}");
+                Logger.Info($"No Previous metadata creating tables job: {request.DataVersions.JobId}");
                 await EnsureTableAsync(connFactory, goldenTable);
                 await EnsureTableAsync(connFactory, versionTable);
-                Logger.Info($"Created buckets job: {request.DataVersions.JobId}");
+                Logger.Info($"Created tables job: {request.DataVersions.JobId}");
             }
             else
             {
@@ -74,27 +74,9 @@ namespace PluginAmazonAurora.API.Replication
                         .SettingsJson);
                 
                 var previousGoldenTable = ConvertSchemaToReplicationTable(previousMetaData.Request.Schema, previousReplicationSettings.SchemaName, previousReplicationSettings.GoldenTableName);
-                goldenTable.Columns.Add(new ReplicationColumn
-                {
-                    ColumnName = Constants.ReplicationRecordId,
-                    DataType = "varchar(255)",
-                    PrimaryKey = true
-                });
 
                 var previousVersionTable = ConvertSchemaToReplicationTable(previousMetaData.Request.Schema, previousReplicationSettings.SchemaName, previousReplicationSettings.VersionTableName);
-                versionTable.Columns.Add(new ReplicationColumn
-                {
-                    ColumnName = Constants.ReplicationRecordId,
-                    DataType = "varchar(255)",
-                    PrimaryKey = true
-                });
-                versionTable.Columns.Add(new ReplicationColumn
-                {
-                    ColumnName = Constants.ReplicationVersionRecordId,
-                    DataType = "varchar(255)",
-                    PrimaryKey = true
-                });
-                
+
                 // check if schema changed
                 if (previousReplicationSettings.SchemaName != replicationSettings.SchemaName)
                 {
@@ -102,13 +84,13 @@ namespace PluginAmazonAurora.API.Replication
                     dropVersionReason = SchemaNameChange;
                 }
 
-                // check if golden bucket name changed
+                // check if golden table name changed
                 if (previousReplicationSettings.GoldenTableName != replicationSettings.GoldenTableName)
                 {
                     dropGoldenReason = GoldenNameChange;
                 }
 
-                // check if version bucket name changed
+                // check if version table name changed
                 if (previousReplicationSettings.VersionTableName != replicationSettings.VersionTableName)
                 {
                     dropVersionReason = VersionNameChange;
@@ -129,25 +111,19 @@ namespace PluginAmazonAurora.API.Replication
                     dropVersionReason = ShapeDataVersionChange;
                 }
 
-                // drop previous golden bucket
+                // drop previous golden table
                 if (dropGoldenReason != "")
                 {
-                    var safePreviousSchemaName = Utility.Utility.GetSafeName(previousReplicationSettings.SchemaName, '`');
-                    var safePreviousGoldenBucketName =
-                        Utility.Utility.GetSafeName(previousReplicationSettings.GoldenTableName, '`');
-
+                    Logger.Info($"Dropping golden table: {dropGoldenReason}");
                     await DropTableAsync(connFactory, previousGoldenTable);
 
                     await EnsureTableAsync(connFactory, goldenTable);
                 }
 
-                // drop previous version bucket
+                // drop previous version table
                 if (dropVersionReason != "")
                 {
-                    var safePreviousSchemaName = Utility.Utility.GetSafeName(previousReplicationSettings.SchemaName, '`');
-                    var safePreviousGoldenBucketName =
-                        Utility.Utility.GetSafeName(previousReplicationSettings.VersionTableName, '`');
-
+                    Logger.Info($"Dropping version table: {dropVersionReason}");
                     await DropTableAsync(connFactory, previousVersionTable);
 
                     await EnsureTableAsync(connFactory, versionTable);

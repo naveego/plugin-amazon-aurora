@@ -16,7 +16,7 @@ namespace PluginAmazonAurora.API.Replication
 {
     public static partial class Replication
     {
-        private static readonly SemaphoreSlim ReplicationSemaphoreSlim = new SemaphoreSlim(10, 10);
+        private static readonly SemaphoreSlim ReplicationSemaphoreSlim = new SemaphoreSlim(1, 1);
         
         /// <summary>
         /// Adds and removes records to replication db
@@ -79,7 +79,8 @@ namespace PluginAmazonAurora.API.Replication
                 }
             
                 // write data
-                if (recordData.Count == 0)
+                // check if 2 since we always add 2 things to the dictionary
+                if (recordData.Count == 2)
                 {
                     // delete everything for this record
                     Logger.Debug($"shapeId: {safeSchemaName} | recordId: {record.RecordId} - DELETE");

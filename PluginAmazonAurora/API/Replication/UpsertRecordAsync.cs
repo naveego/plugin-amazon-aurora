@@ -45,7 +45,7 @@ namespace PluginAmazonAurora.API.Replication
                     }
                     else
                     {
-                        querySb.Append($"{null},");
+                        querySb.Append($"NULL,");
                     }
                 }
 
@@ -72,12 +72,20 @@ namespace PluginAmazonAurora.API.Replication
                     {
                         if (!column.PrimaryKey)
                         {
-                            var rawValue = recordMap[column.ColumnName];
-                            if (column.Serialize)
+                            if (recordMap.ContainsKey(column.ColumnName))
                             {
-                                rawValue = JsonConvert.SerializeObject(rawValue);
+                                var rawValue = recordMap[column.ColumnName];
+                                if (column.Serialize)
+                                {
+                                    rawValue = JsonConvert.SerializeObject(rawValue);
+                                }
+                                querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName, '`')}='{rawValue}',");
                             }
-                            querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName, '`')}='{rawValue}',");
+                            else
+                            {
+                                querySb.Append($"{Utility.Utility.GetSafeName(column.ColumnName, '`')}=NULL,");
+                            }
+                            
                         }
                     }
 

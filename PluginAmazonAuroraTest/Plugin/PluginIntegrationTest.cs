@@ -523,7 +523,7 @@ namespace PluginAmazonAuroraTest.Plugin
                     JobId = "jobUnitTest",
                     ShapeId = "shapeUnitTest",
                     JobDataVersion = 1,
-                    ShapeDataVersion = 1
+                    ShapeDataVersion = 2
                 }
             };
 

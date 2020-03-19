@@ -2,6 +2,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PluginAmazonAurora.API.Factory;
 using PluginAmazonAurora.DataContracts;
+using PluginAmazonAurora.Helper;
 
 namespace PluginAmazonAurora.API.Replication
 {
@@ -19,10 +20,13 @@ AND table_name = '{1}'";
             var conn = connFactory.GetConnection();
             await conn.OpenAsync();
             
+            Logger.Info($"Creating Schema... {table.SchemaName}");
             var cmd = connFactory.GetCommand($"CREATE SCHEMA IF NOT EXISTS {table.SchemaName}", conn);
             await cmd.ExecuteNonQueryAsync();
 
             cmd = connFactory.GetCommand(string.Format(EnsureTableQuery, table.SchemaName, table.TableName), conn);
+            
+            Logger.Info($"Creating Table: {string.Format(EnsureTableQuery, table.SchemaName, table.TableName)}");
 
             // check if table exists
             var reader = await cmd.ExecuteReaderAsync();
@@ -61,6 +65,7 @@ AND table_name = '{1}'";
                 }
 
                 var query = querySb.ToString();
+                Logger.Info($"Creating Table: {query}");
                 
                 await conn.OpenAsync();
 
