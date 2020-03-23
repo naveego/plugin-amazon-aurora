@@ -12,7 +12,7 @@
   "arch": "$GOARCH",
   "accessGroups": [],
   "canProduceMultipleSchemas": true,
-  "canAcceptQueryBasedSchemas": false,
+  "canAcceptQueryBasedSchemas": true,
   "canUseOAuth": false,
   "canWrite": false,
   "canConfigureReplication": true,
