@@ -639,7 +639,7 @@ namespace PluginAmazonAuroraTest.Plugin
             // setup
             Server server = new Server
             {
-                Services = {Publisher.BindService(new PluginMySQL.Plugin.Plugin())},
+                Services = {Publisher.BindService(new PluginAmazonAurora.Plugin.Plugin())},
                 Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
             };
             server.Start();

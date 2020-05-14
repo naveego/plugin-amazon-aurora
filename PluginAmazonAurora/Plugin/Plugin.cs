@@ -9,6 +9,7 @@ using PluginAmazonAurora.API.Discover;
 using PluginAmazonAurora.API.Factory;
 using PluginAmazonAurora.API.Read;
 using PluginAmazonAurora.API.Replication;
+using PluginAmazonAurora.API.Write;
 using PluginAmazonAurora.DataContracts;
 using PluginAmazonAurora.Helper;
 
@@ -31,7 +32,7 @@ namespace PluginAmazonAurora.Plugin
         }
 
         /// <summary>
-        /// Establishes a connection with MySQL.
+        /// Establishes a connection with Amazon Aurora.
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -132,7 +133,7 @@ namespace PluginAmazonAurora.Plugin
 
 
         /// <summary>
-        /// Discovers schemas located in the users Zoho CRM instance
+        /// Discovers schemas located in the users Amazon Aurora instance
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -300,7 +301,7 @@ namespace PluginAmazonAurora.Plugin
         }
 
         /// <summary>
-        /// Configures replication writebacks to MySQL
+        /// Configures replication writebacks to Amazon Aurora
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -357,7 +358,7 @@ namespace PluginAmazonAurora.Plugin
         }
 
         /// <summary>
-        /// Prepares writeback settings to write to MySQL
+        /// Prepares writeback settings to write to Amazon Aurora
         /// </summary>
         /// <param name="request"></param>
         /// <param name="context"></param>
@@ -402,7 +403,7 @@ namespace PluginAmazonAurora.Plugin
         }
 
         /// <summary>
-        /// Writes records to MySQL
+        /// Writes records to Amazon Aurora
         /// </summary>
         /// <param name="requestStream"></param>
         /// <param name="responseStream"></param>
@@ -413,7 +414,7 @@ namespace PluginAmazonAurora.Plugin
         {
             try
             {
-                Logger.Info("Writing records to MySQL...");
+                Logger.Info("Writing records to Amazon Aurora...");
             
                 var schema = _server.WriteSettings.Schema;
                 var inCount = 0;
@@ -449,7 +450,7 @@ namespace PluginAmazonAurora.Plugin
                     }
                 }
             
-                Logger.Info($"Wrote {inCount} records to MySQL.");
+                Logger.Info($"Wrote {inCount} records to Amazon Aurora.");
             }
             catch (Exception e)
             {
