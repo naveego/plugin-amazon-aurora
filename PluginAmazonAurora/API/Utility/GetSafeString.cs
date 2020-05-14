@@ -2,9 +2,9 @@ namespace PluginAmazonAurora.API.Utility
 {
     public static partial class Utility
     {
-        public static string GetSafeString(string unsafeString, string escapeChar = "\\")
+        public static string GetSafeString(string unsafeString, string escapeChar = "\\", string newValue = "\\\\")
         {
-            return unsafeString.Replace(escapeChar, "\\\\");
+            return unsafeString.Replace(escapeChar, newValue);
         }
     }
 }
