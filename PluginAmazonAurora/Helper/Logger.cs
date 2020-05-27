@@ -17,7 +17,7 @@ namespace PluginAmazonAurora.Helper
         }
 
         private static string _logPrefix = "";
-        private static string _path = @"plugin-mysql-log.txt";
+        private static string _path = @"plugin-amazon-aurora-log.txt";
         private static LogLevel _level = LogLevel.Info;
         private static ReaderWriterLockSlim _readWriteLock = new ReaderWriterLockSlim();
         
