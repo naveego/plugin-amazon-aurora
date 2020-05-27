@@ -163,7 +163,7 @@ namespace PluginAmazonAuroraTest.Plugin
 
             // assert
             Assert.IsType<DiscoverSchemasResponse>(response);
-            Assert.Equal(8, response.Schemas.Count);
+            Assert.Equal(17, response.Schemas.Count);
 
             var schema = response.Schemas[0];
             Assert.Equal($"`classicmodels`.`customers`", schema.Id);
@@ -290,7 +290,52 @@ namespace PluginAmazonAuroraTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
+        [Fact]
+        public async Task DiscoverSchemasRefreshQueryBadSyntaxTest()
+        {
+            // setup
+            Server server = new Server
+            {
+                Services = {Publisher.BindService(new PluginMySQL.Plugin.Plugin())},
+                Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
+            };
+            server.Start();
+
+            var port = server.Ports.First().BoundPort;
+
+            var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
+            var client = new Publisher.PublisherClient(channel);
+
+            var connectRequest = GetConnectSettings();
+
+            var request = new DiscoverSchemasRequest
+            {
+                Mode = DiscoverSchemasRequest.Types.Mode.Refresh,
+                SampleSize = 10,
+                ToRefresh = {GetTestSchema("test", "test", $"bad syntax")}
+            };
+
+            // act
+            client.Connect(connectRequest);
+
+            try
+            {
+                var response = client.DiscoverSchemas(request);
+            }
+            catch (Exception e)
+            {
+                // assert
+                Assert.IsType<RpcException>(e);
+                Assert.Contains("You have an error in your SQL syntax", e.Message);
+            }
+
+            // cleanup
+            await channel.ShutdownAsync();
+            await server.ShutdownAsync();
+        }
+
+
         [Fact]
         public async Task ReadStreamTableSchemaTest()
         {
@@ -308,7 +353,7 @@ namespace PluginAmazonAuroraTest.Plugin
             var client = new Publisher.PublisherClient(channel);
 
             var schema = GetTestSchema("`classicmodels`.`customers`", "classicmodels.customers");
-            
+
             var connectRequest = GetConnectSettings();
 
             var schemaRequest = new DiscoverSchemasRequest
@@ -330,7 +375,7 @@ namespace PluginAmazonAuroraTest.Plugin
             client.Connect(connectRequest);
             var schemasResponse = client.DiscoverSchemas(schemaRequest);
             request.Schema = schemasResponse.Schemas[0];
-            
+
             var response = client.ReadStream(request);
             var responseStream = response.ResponseStream;
             var records = new List<Record>();
@@ -344,7 +389,7 @@ namespace PluginAmazonAuroraTest.Plugin
             Assert.Equal(122, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
-            Assert.Equal((long)103, record["`customerNumber`"]);
+            Assert.Equal((long) 103, record["`customerNumber`"]);
             Assert.Equal("Atelier graphique", record["`customerName`"]);
             Assert.Equal("Schmitt", record["`contactLastName`"]);
             Assert.Equal("Carine", record["`contactFirstName`"]);
@@ -355,14 +400,14 @@ namespace PluginAmazonAuroraTest.Plugin
             Assert.Equal("", record["`state`"]);
             Assert.Equal("44000", record["`postalCode`"]);
             Assert.Equal("France", record["`country`"]);
-            Assert.Equal((long)1370, record["`salesRepEmployeeNumber`"]);
+            Assert.Equal((long) 1370, record["`salesRepEmployeeNumber`"]);
             Assert.Equal("21000.00", record["`creditLimit`"]);
-            
+
             // cleanup
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
         [Fact]
         public async Task ReadStreamQuerySchemaTest()
         {
@@ -380,7 +425,7 @@ namespace PluginAmazonAuroraTest.Plugin
             var client = new Publisher.PublisherClient(channel);
 
             var schema = GetTestSchema("test", "test", $"SELECT * FROM `classicmodels`.`orders`");
-            
+
             var connectRequest = GetConnectSettings();
 
             var schemaRequest = new DiscoverSchemasRequest
@@ -402,7 +447,7 @@ namespace PluginAmazonAuroraTest.Plugin
             client.Connect(connectRequest);
             var schemasResponse = client.DiscoverSchemas(schemaRequest);
             request.Schema = schemasResponse.Schemas[0];
-            
+
             var response = client.ReadStream(request);
             var responseStream = response.ResponseStream;
             var records = new List<Record>();
@@ -416,19 +461,19 @@ namespace PluginAmazonAuroraTest.Plugin
             Assert.Equal(326, records.Count);
 
             var record = JsonConvert.DeserializeObject<Dictionary<string, object>>(records[0].DataJson);
-            Assert.Equal((long)10100, record["`orderNumber`"]);
+            Assert.Equal((long) 10100, record["`orderNumber`"]);
             Assert.Equal(DateTime.Parse("2003-01-06"), record["`orderDate`"]);
             Assert.Equal(DateTime.Parse("2003-01-13"), record["`requiredDate`"]);
             Assert.Equal(DateTime.Parse("2003-01-10"), record["`shippedDate`"]);
             Assert.Equal("Shipped", record["`status`"]);
             Assert.Equal("", record["`comments`"]);
-            Assert.Equal((long)363, record["`customerNumber`"]);
+            Assert.Equal((long) 363, record["`customerNumber`"]);
 
             // cleanup
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
         [Fact]
         public async Task ReadStreamLimitTest()
         {
@@ -446,7 +491,7 @@ namespace PluginAmazonAuroraTest.Plugin
             var client = new Publisher.PublisherClient(channel);
 
             var schema = GetTestSchema("`classicmodels`.`customers`", "classicmodels.customers");
-            
+
             var connectRequest = GetConnectSettings();
 
             var schemaRequest = new DiscoverSchemasRequest
@@ -469,7 +514,7 @@ namespace PluginAmazonAuroraTest.Plugin
             client.Connect(connectRequest);
             var schemasResponse = client.DiscoverSchemas(schemaRequest);
             request.Schema = schemasResponse.Schemas[0];
-            
+
             var response = client.ReadStream(request);
             var responseStream = response.ResponseStream;
             var records = new List<Record>();
@@ -486,7 +531,7 @@ namespace PluginAmazonAuroraTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
         [Fact]
         public async Task PrepareWriteTest()
         {
@@ -538,7 +583,7 @@ namespace PluginAmazonAuroraTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
         [Fact]
         public async Task ReplicationWriteTest()
         {
@@ -588,11 +633,14 @@ namespace PluginAmazonAuroraTest.Plugin
                         CorrelationId = "test",
                         RecordId = "record1",
                         DataJson = "{\"Id\":1,\"Name\":\"Test Company\"}",
-                        Versions = { new RecordVersion
+                        Versions =
                         {
-                            RecordId = "version1",
-                            DataJson = "{\"Id\":1,\"Name\":\"Test Company\"}",
-                        }}
+                            new RecordVersion
+                            {
+                                RecordId = "version1",
+                                DataJson = "{\"Id\":1,\"Name\":\"Test Company\"}",
+                            }
+                        }
                     }
                 }
             };
@@ -632,7 +680,7 @@ namespace PluginAmazonAuroraTest.Plugin
             await channel.ShutdownAsync();
             await server.ShutdownAsync();
         }
-        
+
         [Fact]
         public async Task WriteTest()
         {
@@ -650,7 +698,7 @@ namespace PluginAmazonAuroraTest.Plugin
             var client = new Publisher.PublisherClient(channel);
 
             var connectRequest = GetConnectSettings();
-            
+
             var configureRequest = new ConfigureWriteRequest
             {
                 Form = new ConfigurationFormRequest
@@ -681,7 +729,7 @@ namespace PluginAmazonAuroraTest.Plugin
             client.Connect(connectRequest);
 
             var configureResponse = client.ConfigureWrite(configureRequest);
-            
+
             var prepareWriteRequest = new PrepareWriteRequest()
             {
                 Schema = configureResponse.Schema,

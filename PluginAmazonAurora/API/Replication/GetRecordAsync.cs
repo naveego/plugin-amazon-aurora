@@ -45,8 +45,8 @@ WHERE {2} = '{3}'";
                     }
                     catch (Exception e)
                     {
-                        Logger.Error($"No column with column name: {column.ColumnName}");
-                        Logger.Error(e.Message);
+                        Logger.Error(e, $"No column with column name: {column.ColumnName}");
+                        Logger.Error(e, e.Message);
                         recordMap[column.ColumnName] = null;
                     }
                 }

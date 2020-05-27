@@ -88,7 +88,7 @@ namespace PluginMySQL.API.Write
             {
                 await conn.CloseAsync();
                 
-                Logger.Error($"Error writing record {e.Message}");
+                Logger.Error(e, $"Error writing record {e.Message}");
                 // send ack
                 var ack = new RecordAck
                 {

@@ -76,8 +76,8 @@ WHERE {Constants.ReplicationMetaDataJobId} = '{{6}}'";
                 }
                 catch (Exception exception)
                 {
-                    Logger.Error($"Error Insert: {e.Message}");
-                    Logger.Error($"Error Update: {exception.Message}");
+                    Logger.Error(e, $"Error Insert: {e.Message}");
+                    Logger.Error(exception, $"Error Update: {exception.Message}");
                     throw;
                 }
             }
