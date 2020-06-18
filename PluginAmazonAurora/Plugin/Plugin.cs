@@ -258,7 +258,7 @@ namespace PluginAmazonAurora.Plugin
             var uiJson = Write.GetUIJson();
 
             // if first call 
-            if (request.Form == null || request.Form.DataJson == "")
+            if (string.IsNullOrWhiteSpace(request.Form.DataJson) || request.Form.DataJson == "{}")
             {
                 return new ConfigureWriteResponse
                 {
