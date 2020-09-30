@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Naveego.Sdk.Plugins;
-using PluginMySQL.Helper;
+using PluginAmazonAurora.Helper;
 using Xunit;
 
 namespace PluginAmazonAuroraTest.Helper
