@@ -1,157 +1,227 @@
 using System;
 using System.IO;
-using PluginAmazonAurora.Helper;
+using System.Linq;
+using Naveego.Sdk.Plugins;
+using PluginMySQL.Helper;
 using Xunit;
 
 namespace PluginAmazonAuroraTest.Helper
 {
     public class LoggerTest
     {
-        private static string _path = @"logs/plugin-amazon-aurora-log.txt";
-        
+        private static string _logDirectory = "logs";
+
         [Fact]
         public void VerboseTest()
         {
+            var files = Directory.GetFiles(_logDirectory);
+            
             // setup
             try
             {
-                File.Delete(_path);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
             }
             catch
             {
             }
-            
-            Logger.SetLogLevel(Logger.LogLevel.Verbose);
-            
+
+            Logger.Init(_logDirectory);
+            Logger.SetLogLevel(LogLevel.Trace);
+
             // act
             Logger.Verbose("verbose");
             Logger.Debug("debug");
             Logger.Info("info");
             Logger.Error(new Exception("error"), "error");
+            Logger.CloseAndFlush();
 
             // assert
-            string[] lines = File.ReadAllLines(_path);
-
-            Assert.Equal(4, lines.Length);
+            files = Directory.GetFiles(_logDirectory);
+            Assert.Single(files);
             
+            string[] lines = File.ReadAllLines(files.First());
+
+            Assert.Equal(5, lines.Length);
+
             // cleanup
-            File.Delete(_path);
+            File.Delete(files.First());
         }
-        
+
         [Fact]
         public void DebugTest()
         {
+            var files = Directory.GetFiles(_logDirectory);
+            
             // setup
             try
             {
-                File.Delete(_path);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
             }
             catch
             {
             }
-            
-            Logger.SetLogLevel(Logger.LogLevel.Debug);
-            
+
+            Logger.Init(_logDirectory);
+            Logger.SetLogLevel(LogLevel.Debug);
+
             // act
             Logger.Verbose("verbose");
             Logger.Debug("debug");
             Logger.Info("info");
             Logger.Error(new Exception("error"), "error");
+            Logger.CloseAndFlush();
 
             // assert
-            string[] lines = File.ReadAllLines(_path);
-
-            Assert.Equal(3, lines.Length);
+            files = Directory.GetFiles(_logDirectory);
+            Assert.Single(files);
             
+            string[] lines = File.ReadAllLines(files.First());
+
+            Assert.Equal(4, lines.Length);
+
             // cleanup
-            File.Delete(_path);
+            File.Delete(files.First());
         }
-        
+
         [Fact]
         public void InfoTest()
         {
+            var files = Directory.GetFiles(_logDirectory);
+            
             // setup
             try
             {
-                File.Delete(_path);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
             }
             catch
             {
             }
-            
-            Logger.SetLogLevel(Logger.LogLevel.Info);
-            
+
+            Logger.Init(_logDirectory);
+            Logger.SetLogLevel(LogLevel.Info);
+
             // act
             Logger.Verbose("verbose");
             Logger.Debug("debug");
             Logger.Info("info");
             Logger.Error(new Exception("error"), "error");
+            Logger.CloseAndFlush();
 
             // assert
-            string[] lines = File.ReadAllLines(_path);
-
-            Assert.Equal(2, lines.Length);
+            files = Directory.GetFiles(_logDirectory);
+            Assert.Single(files);
             
+            string[] lines = File.ReadAllLines(files.First());
+
+            Assert.Equal(3, lines.Length);
+
             // cleanup
-            File.Delete(_path);
+            File.Delete(files.First());
         }
-        
+
         [Fact]
         public void ErrorTest()
         {
+            var files = Directory.GetFiles(_logDirectory);
+            
             // setup
             try
             {
-                File.Delete(_path);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
             }
             catch
             {
             }
-            
-            Logger.SetLogLevel(Logger.LogLevel.Error);
-            
+
+            Logger.Init(_logDirectory);
+            Logger.SetLogLevel(LogLevel.Error);
+
             // act
             Logger.Verbose("verbose");
             Logger.Debug("debug");
             Logger.Info("info");
             Logger.Error(new Exception("error"), "error");
+            Logger.CloseAndFlush();
 
             // assert
-            string[] lines = File.ReadAllLines(_path);
-
-            Assert.Single(lines);
+            files = Directory.GetFiles(_logDirectory);
+            Assert.Single(files);
             
+            string[] lines = File.ReadAllLines(files.First());
+
+            Assert.Equal(2, lines.Length);
+
             // cleanup
-            File.Delete(_path);
+            File.Delete(files.First());
         }
         
         [Fact]
-        public void OffTest()
+        public void ConfigureTest()
         {
+            var files = Directory.GetFiles(_logDirectory);
+            var newLogsPath = "newlogs";
+            var newFiles = Directory.GetFiles(newLogsPath);
+            
             // setup
             try
             {
-                File.Delete(_path);
+                foreach (var file in files)
+                {
+                    File.Delete(file);
+                }
+                
+                foreach (var file in newFiles)
+                {
+                    File.Delete(file);
+                }
             }
             catch
             {
             }
-            
-            Logger.SetLogLevel(Logger.LogLevel.Off);
-            
+
+            Logger.Init(_logDirectory);
+            Logger.SetLogLevel(LogLevel.Error);
+
             // act
             Logger.Verbose("verbose");
             Logger.Debug("debug");
             Logger.Info("info");
             Logger.Error(new Exception("error"), "error");
 
-            // assert
-            string[] lines = File.Exists(_path) ? File.ReadAllLines(_path) : new string[0];
 
-            Assert.Empty(lines);
+            Logger.Init(newLogsPath);
+            Logger.Verbose("verbose");
+            Logger.Debug("debug");
+            Logger.Info("info");
+            Logger.Error(new Exception("error"), "error");
+            Logger.CloseAndFlush();
+
+            // assert
+            files = Directory.GetFiles(_logDirectory);
+            Assert.Single(files);
             
+            newFiles = Directory.GetFiles(newLogsPath);
+            Assert.Single(newFiles);
+            
+            string[] lines = File.ReadAllLines(newFiles.First());
+
+            Assert.Equal(2, lines.Length);
+
             // cleanup
-            File.Delete(_path);
+            File.Delete(files.First());
+            File.Delete(newFiles.First());
         }
     }
 }
