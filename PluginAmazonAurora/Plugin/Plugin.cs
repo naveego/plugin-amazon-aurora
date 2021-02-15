@@ -104,9 +104,9 @@ namespace PluginAmazonAurora.Plugin
             }
 
             // test cluster factory
+            var conn = _connectionFactory.GetConnection();
             try
             {
-                var conn =  _connectionFactory.GetConnection();
                 await conn.OpenAsync();
 
                 if (!await conn.PingAsync())
@@ -131,6 +131,10 @@ namespace PluginAmazonAurora.Plugin
                     OauthError = "",
                     SettingsError = ""
                 };
+            }
+            finally
+            {
+                await conn.CloseAsync();
             }
 
             _server.Connected = true;

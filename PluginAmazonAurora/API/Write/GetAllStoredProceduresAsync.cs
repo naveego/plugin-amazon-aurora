@@ -15,31 +15,37 @@ namespace PluginAmazonAurora.API.Write
 SELECT ROUTINE_SCHEMA, ROUTINE_NAME, SPECIFIC_NAME
 FROM INFORMATION_SCHEMA.ROUTINES
 WHERE ROUTINE_TYPE = 'PROCEDURE' AND ROUTINE_SCHEMA != 'sys'";
-        
+
         public static async Task<List<WriteStoredProcedure>> GetAllStoredProceduresAsync(IConnectionFactory connFactory)
         {
             var storedProcedures = new List<WriteStoredProcedure>();
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
 
-            var cmd = connFactory.GetCommand(GetAllStoredProceduresQuery, conn);
-            var reader = await cmd.ExecuteReaderAsync();
-
-            while (await reader.ReadAsync())
+            try
             {
-                var storedProcedure = new WriteStoredProcedure
-                {
-                    SchemaName = reader.GetValueById(SchemaName).ToString(),
-                    RoutineName = reader.GetValueById(RoutineName).ToString(),
-                    SpecificName = reader.GetValueById(SpecificName).ToString()
-                };
-                
-                storedProcedures.Add(storedProcedure);
-            }
-            
-            await conn.CloseAsync();
+                await conn.OpenAsync();
 
-            return storedProcedures;
+                var cmd = connFactory.GetCommand(GetAllStoredProceduresQuery, conn);
+                var reader = await cmd.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    var storedProcedure = new WriteStoredProcedure
+                    {
+                        SchemaName = reader.GetValueById(SchemaName).ToString(),
+                        RoutineName = reader.GetValueById(RoutineName).ToString(),
+                        SpecificName = reader.GetValueById(SpecificName).ToString()
+                    };
+
+                    storedProcedures.Add(storedProcedure);
+                }
+
+                return storedProcedures;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

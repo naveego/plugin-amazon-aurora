@@ -12,69 +12,75 @@ namespace PluginAmazonAurora.API.Read
         public static async IAsyncEnumerable<Record> ReadRecords(IConnectionFactory connFactory, Schema schema)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
-
-            var query = schema.Query;
-
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                query = $"SELECT * FROM {schema.Id}";
-            }
-
-            var cmd = connFactory.GetCommand(query, conn);
-            IReader reader;
-
+            
             try
             {
-                reader = await cmd.ExecuteReaderAsync();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(e, e.Message);
-                yield break;
-            }
+                await conn.OpenAsync();
 
-            if (reader.HasRows())
-            {
-                while (await reader.ReadAsync())
+                var query = schema.Query;
+
+                if (string.IsNullOrWhiteSpace(query))
                 {
-                    var recordMap = new Dictionary<string, object>();
+                    query = $"SELECT * FROM {schema.Id}";
+                }
 
-                    foreach (var property in schema.Properties)
+                var cmd = connFactory.GetCommand(query, conn);
+                IReader reader;
+
+                try
+                {
+                    reader = await cmd.ExecuteReaderAsync();
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(e, e.Message);
+                    yield break;
+                }
+
+                if (reader.HasRows())
+                {
+                    while (await reader.ReadAsync())
                     {
-                        try
+                        var recordMap = new Dictionary<string, object>();
+
+                        foreach (var property in schema.Properties)
                         {
-                            switch (property.Type)
+                            try
                             {
-                                case PropertyType.String:
-                                case PropertyType.Text:
-                                case PropertyType.Decimal:
-                                    recordMap[property.Id] = reader.GetValueById(property.Id, '`').ToString();
-                                    break;
-                                default:
-                                    recordMap[property.Id] = reader.GetValueById(property.Id, '`');
-                                    break;
+                                switch (property.Type)
+                                {
+                                    case PropertyType.String:
+                                    case PropertyType.Text:
+                                    case PropertyType.Decimal:
+                                        recordMap[property.Id] = reader.GetValueById(property.Id, '`').ToString();
+                                        break;
+                                    default:
+                                        recordMap[property.Id] = reader.GetValueById(property.Id, '`');
+                                        break;
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Error(e, $"No column with property Id: {property.Id}");
+                                Logger.Error(e, e.Message);
+                                recordMap[property.Id] = null;
                             }
                         }
-                        catch (Exception e)
+
+                        var record = new Record
                         {
-                            Logger.Error(e, $"No column with property Id: {property.Id}");
-                            Logger.Error(e, e.Message);
-                            recordMap[property.Id] = null;
-                        }
+                            Action = Record.Types.Action.Upsert,
+                            DataJson = JsonConvert.SerializeObject(recordMap)
+                        };
+
+                        yield return record;
                     }
-
-                    var record = new Record
-                    {
-                        Action = Record.Types.Action.Upsert,
-                        DataJson = JsonConvert.SerializeObject(recordMap)
-                    };
-
-                    yield return record;
                 }
             }
-
-            await conn.CloseAsync();
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

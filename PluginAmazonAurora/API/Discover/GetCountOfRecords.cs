@@ -16,29 +16,35 @@ namespace PluginAmazonAurora.API.Discover
             }
 
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
-
-            var cmd = connFactory.GetCommand($"SELECT COUNT(*) as count FROM ({query}) as q", conn);
-            var reader = await cmd.ExecuteReaderAsync();
-
-            var count = -1;
-            while (await reader.ReadAsync())
+            
+            try
             {
-                count = Convert.ToInt32(reader.GetValueById("count"));
-            }
+                await conn.OpenAsync();
 
-            await conn.CloseAsync();
+                var cmd = connFactory.GetCommand($"SELECT COUNT(*) as count FROM ({query}) as q", conn);
+                var reader = await cmd.ExecuteReaderAsync();
 
-            return count == -1
-                ? new Count
+                var count = -1;
+                while (await reader.ReadAsync())
                 {
-                    Kind = Count.Types.Kind.Unavailable,
+                    count = Convert.ToInt32(reader.GetValueById("count"));
                 }
-                : new Count
-                {
-                    Kind = Count.Types.Kind.Exact,
-                    Value = count
-                };
+                
+                return count == -1
+                    ? new Count
+                    {
+                        Kind = Count.Types.Kind.Unavailable,
+                    }
+                    : new Count
+                    {
+                        Kind = Count.Types.Kind.Exact,
+                        Value = count
+                    };
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

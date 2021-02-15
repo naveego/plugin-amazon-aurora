@@ -16,23 +16,31 @@ WHERE {2} = '{3}'
             string primaryKeyValue)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
+
+            try
+            {
+                await conn.OpenAsync();
             
-            var cmd = connFactory.GetCommand(string.Format(RecordExistsQuery,
-                    Utility.Utility.GetSafeName(table.SchemaName, '`'),
-                    Utility.Utility.GetSafeName(table.TableName, '`'),
-                    Utility.Utility.GetSafeName(table.Columns.Find(c => c.PrimaryKey == true).ColumnName, '`'),
-                    primaryKeyValue
-                ),
-                conn);
+                var cmd = connFactory.GetCommand(string.Format(RecordExistsQuery,
+                        Utility.Utility.GetSafeName(table.SchemaName, '`'),
+                        Utility.Utility.GetSafeName(table.TableName, '`'),
+                        Utility.Utility.GetSafeName(table.Columns.Find(c => c.PrimaryKey == true).ColumnName, '`'),
+                        primaryKeyValue
+                    ),
+                    conn);
 
-            // check if record exists
-            var reader = await cmd.ExecuteReaderAsync();
-            await reader.ReadAsync();
-            var count = (long) reader.GetValueById("c");
-            await conn.CloseAsync();
-
-            return count != 0;
+                // check if record exists
+                var reader = await cmd.ExecuteReaderAsync();
+                await reader.ReadAsync();
+                var count = (long) reader.GetValueById("c");
+                
+                return count != 0;
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
+            
         }
     }
 }

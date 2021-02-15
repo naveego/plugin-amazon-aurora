@@ -13,10 +13,13 @@ namespace PluginAmazonAurora.API.Replication
     {
         private static readonly string GetMetaDataQuery = @"SELECT * FROM {0}.{1} WHERE {2} = '{3}'";
 
-        public static async Task<ReplicationMetaData> GetPreviousReplicationMetaDataAsync(IConnectionFactory connFactory,
+        public static async Task<ReplicationMetaData> GetPreviousReplicationMetaDataAsync(
+            IConnectionFactory connFactory,
             string jobId,
             ReplicationTable table)
         {
+            var conn = connFactory.GetConnection();
+
             try
             {
                 ReplicationMetaData replicationMetaData = null;
@@ -25,13 +28,13 @@ namespace PluginAmazonAurora.API.Replication
                 await EnsureTableAsync(connFactory, table);
 
                 // check if metadata exists
-                var conn = connFactory.GetConnection();
+
                 await conn.OpenAsync();
 
                 var cmd = connFactory.GetCommand(
-                    string.Format(GetMetaDataQuery, 
+                    string.Format(GetMetaDataQuery,
                         Utility.Utility.GetSafeName(table.SchemaName, '`'),
-                        Utility.Utility.GetSafeName(table.TableName, '`'), 
+                        Utility.Utility.GetSafeName(table.TableName, '`'),
                         Utility.Utility.GetSafeName(Constants.ReplicationMetaDataJobId),
                         jobId),
                     conn);
@@ -50,7 +53,7 @@ namespace PluginAmazonAurora.API.Replication
                         .ToString();
                     var timestamp = DateTime.Parse(reader.GetValueById(Constants.ReplicationMetaDataTimestamp)
                         .ToString());
-                    
+
                     replicationMetaData = new ReplicationMetaData
                     {
                         Request = request,
@@ -59,15 +62,17 @@ namespace PluginAmazonAurora.API.Replication
                         Timestamp = timestamp
                     };
                 }
-
-                await conn.CloseAsync();
-
+                
                 return replicationMetaData;
             }
             catch (Exception e)
             {
                 Logger.Error(e, e.Message);
                 throw;
+            }
+            finally
+            {
+                await conn.CloseAsync();
             }
         }
     }

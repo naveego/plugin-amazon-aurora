@@ -11,17 +11,23 @@ namespace PluginAmazonAurora.API.Replication
         public static async Task DropTableAsync(IConnectionFactory connFactory, ReplicationTable table)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
 
-            var cmd = connFactory.GetCommand(
-                string.Format(DropTableQuery,
-                    Utility.Utility.GetSafeName(table.SchemaName, '`'),
-                    Utility.Utility.GetSafeName(table.TableName, '`')
-                ),
-                conn);
-            await cmd.ExecuteNonQueryAsync();
+            try
+            {
+                await conn.OpenAsync();
 
-            await conn.CloseAsync();
+                var cmd = connFactory.GetCommand(
+                    string.Format(DropTableQuery,
+                        Utility.Utility.GetSafeName(table.SchemaName, '`'),
+                        Utility.Utility.GetSafeName(table.TableName, '`')
+                    ),
+                    conn);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

@@ -24,7 +24,7 @@ VALUES (
 , '{{5}}'
 , '{{6}}'
 )";
-        
+
         private static readonly string UpdateMetaDataQuery = $@"UPDATE {{0}}.{{1}}
 SET 
 {Constants.ReplicationMetaDataRequest} = '{{2}}'
@@ -32,25 +32,27 @@ SET
 , {Constants.ReplicationMetaDataReplicatedShapeName} = '{{4}}'
 , {Constants.ReplicationMetaDataTimestamp} = '{{5}}'
 WHERE {Constants.ReplicationMetaDataJobId} = '{{6}}'";
-        
-        public static async Task UpsertReplicationMetaDataAsync(IConnectionFactory connFactory, ReplicationTable table, ReplicationMetaData metaData)
+
+        public static async Task UpsertReplicationMetaDataAsync(IConnectionFactory connFactory, ReplicationTable table,
+            ReplicationMetaData metaData)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
-            
+
             try
             {
+                await conn.OpenAsync();
+
                 // try to insert
                 var cmd = connFactory.GetCommand(
-                    string.Format(InsertMetaDataQuery, 
+                    string.Format(InsertMetaDataQuery,
                         Utility.Utility.GetSafeName(table.SchemaName, '`'),
-                        Utility.Utility.GetSafeName(table.TableName, '`'), 
+                        Utility.Utility.GetSafeName(table.TableName, '`'),
                         metaData.Request.DataVersions.JobId,
                         JsonConvert.SerializeObject(metaData.Request).Replace("\\", "\\\\"),
                         metaData.ReplicatedShapeId,
                         metaData.ReplicatedShapeName,
                         metaData.Timestamp
-                        ),
+                    ),
                     conn);
 
                 await cmd.ExecuteNonQueryAsync();
@@ -61,7 +63,7 @@ WHERE {Constants.ReplicationMetaDataJobId} = '{{6}}'";
                 {
                     // update if it failed
                     var cmd = connFactory.GetCommand(
-                        string.Format(UpdateMetaDataQuery, 
+                        string.Format(UpdateMetaDataQuery,
                             Utility.Utility.GetSafeName(table.SchemaName, '`'),
                             Utility.Utility.GetSafeName(table.TableName, '`'),
                             JsonConvert.SerializeObject(metaData.Request).Replace("\\", "\\\\"),
@@ -71,7 +73,7 @@ WHERE {Constants.ReplicationMetaDataJobId} = '{{6}}'";
                             metaData.Request.DataVersions.JobId
                         ),
                         conn);
-                
+
                     await cmd.ExecuteNonQueryAsync();
                 }
                 catch (Exception exception)
@@ -80,9 +82,15 @@ WHERE {Constants.ReplicationMetaDataJobId} = '{{6}}'";
                     Logger.Error(exception, $"Error Update: {exception.Message}");
                     throw;
                 }
+                finally
+                {
+                    await conn.CloseAsync();
+                }
             }
-
-            await conn.CloseAsync();
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

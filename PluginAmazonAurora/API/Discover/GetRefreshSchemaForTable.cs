@@ -34,37 +34,44 @@ ORDER BY t.TABLE_NAME";
                 ? connFactory.GetConnection()
                 : connFactory.GetConnection(decomposed.Database);
 
-            await conn.OpenAsync();
-
-            var cmd = connFactory.GetCommand(
-                string.Format(GetTableAndColumnsQuery, decomposed.Schema, decomposed.Table), conn);
-            var reader = await cmd.ExecuteReaderAsync();
-            var refreshProperties = new List<Property>();
-
-            while (await reader.ReadAsync())
+            try
             {
-                // add column to refreshProperties
-                var property = new Property
+                await conn.OpenAsync();
+
+                var cmd = connFactory.GetCommand(
+                    string.Format(GetTableAndColumnsQuery, decomposed.Schema, decomposed.Table), conn);
+                var reader = await cmd.ExecuteReaderAsync();
+                var refreshProperties = new List<Property>();
+
+                while (await reader.ReadAsync())
                 {
-                    Id = Utility.Utility.GetSafeName(reader.GetValueById(ColumnName).ToString(), '`'),
-                    Name = reader.GetValueById(ColumnName).ToString(),
-                    IsKey = reader.GetValueById(ColumnKey).ToString() == "PRI",
-                    IsNullable = reader.GetValueById(IsNullable).ToString() == "YES",
-                    Type = GetType(reader.GetValueById(DataType).ToString()),
-                    TypeAtSource = GetTypeAtSource(reader.GetValueById(DataType).ToString(),
-                        reader.GetValueById(CharacterMaxLength))
-                };
-                refreshProperties.Add(property);
+                    // add column to refreshProperties
+                    var property = new Property
+                    {
+                        Id = Utility.Utility.GetSafeName(reader.GetValueById(ColumnName).ToString(), '`'),
+                        Name = reader.GetValueById(ColumnName).ToString(),
+                        IsKey = reader.GetValueById(ColumnKey).ToString() == "PRI",
+                        IsNullable = reader.GetValueById(IsNullable).ToString() == "YES",
+                        Type = GetType(reader.GetValueById(DataType).ToString()),
+                        TypeAtSource = GetTypeAtSource(reader.GetValueById(DataType).ToString(),
+                            reader.GetValueById(CharacterMaxLength))
+                    };
+                    refreshProperties.Add(property);
+                }
+
+                // add properties
+                schema.Properties.Clear();
+                schema.Properties.AddRange(refreshProperties);
+
+            
+
+                // get sample and count
+                return await AddSampleAndCount(connFactory, schema, sampleSize);
             }
-
-            // add properties
-            schema.Properties.Clear();
-            schema.Properties.AddRange(refreshProperties);
-
-            await conn.CloseAsync();
-
-            // get sample and count
-            return await AddSampleAndCount(connFactory, schema, sampleSize);
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
 
         private static DecomposeResponse DecomposeSafeName(string schemaId)

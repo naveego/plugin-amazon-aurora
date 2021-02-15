@@ -16,10 +16,11 @@ namespace PluginAmazonAurora.API.Replication
             Dictionary<string, object> recordMap)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
-
+            
             try
             {
+                await conn.OpenAsync();
+                
                 // try to insert
                 var querySb =
                     new StringBuilder(
@@ -123,9 +124,15 @@ namespace PluginAmazonAurora.API.Replication
                     Logger.Error(exception, $"Error Update: {exception.Message}");
                     throw;
                 }
+                finally
+                {
+                    await conn.CloseAsync();
+                }
             }
-
-            await conn.CloseAsync();
+            finally
+            {
+                await conn.CloseAsync();
+            }
         }
     }
 }

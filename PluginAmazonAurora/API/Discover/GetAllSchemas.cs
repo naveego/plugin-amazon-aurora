@@ -37,58 +37,64 @@ ORDER BY t.TABLE_NAME";
         public static async IAsyncEnumerable<Schema> GetAllSchemas(IConnectionFactory connFactory, int sampleSize = 5)
         {
             var conn = connFactory.GetConnection();
-            await conn.OpenAsync();
 
-            var cmd = connFactory.GetCommand(GetAllTablesAndColumnsQuery, conn);
-            var reader = await cmd.ExecuteReaderAsync();
-
-            Schema schema = null;
-            var currentSchemaId = "";
-            while (await reader.ReadAsync())
+            try
             {
-                var schemaId =
-                    $"{Utility.Utility.GetSafeName(reader.GetValueById(TableSchema).ToString(), '`')}.{Utility.Utility.GetSafeName(reader.GetValueById(TableName).ToString(), '`')}";
-                if (schemaId != currentSchemaId)
+                await conn.OpenAsync();
+
+                var cmd = connFactory.GetCommand(GetAllTablesAndColumnsQuery, conn);
+                var reader = await cmd.ExecuteReaderAsync();
+
+                Schema schema = null;
+                var currentSchemaId = "";
+                while (await reader.ReadAsync())
                 {
-                    // return previous schema
-                    if (schema != null)
+                    var schemaId =
+                        $"{Utility.Utility.GetSafeName(reader.GetValueById(TableSchema).ToString(), '`')}.{Utility.Utility.GetSafeName(reader.GetValueById(TableName).ToString(), '`')}";
+                    if (schemaId != currentSchemaId)
                     {
-                        // get sample and count
-                        yield return await AddSampleAndCount(connFactory, schema, sampleSize);
+                        // return previous schema
+                        if (schema != null)
+                        {
+                            // get sample and count
+                            yield return await AddSampleAndCount(connFactory, schema, sampleSize);
+                        }
+
+                        // start new schema
+                        currentSchemaId = schemaId;
+                        var parts = DecomposeSafeName(currentSchemaId).TrimEscape();
+                        schema = new Schema
+                        {
+                            Id = currentSchemaId,
+                            Name = $"{parts.Schema}.{parts.Table}",
+                            Properties = { },
+                            DataFlowDirection = Schema.Types.DataFlowDirection.Read
+                        };
                     }
 
-                    // start new schema
-                    currentSchemaId = schemaId;
-                    var parts = DecomposeSafeName(currentSchemaId).TrimEscape();
-                    schema = new Schema
+                    // add column to schema
+                    var property = new Property
                     {
-                        Id = currentSchemaId,
-                        Name = $"{parts.Schema}.{parts.Table}",
-                        Properties = { },
-                        DataFlowDirection = Schema.Types.DataFlowDirection.Read
+                        Id = $"`{reader.GetValueById(ColumnName)}`",
+                        Name = reader.GetValueById(ColumnName).ToString(),
+                        IsKey = reader.GetValueById(ColumnKey).ToString() == "PRI",
+                        IsNullable = reader.GetValueById(IsNullable).ToString() == "YES",
+                        Type = GetType(reader.GetValueById(DataType).ToString()),
+                        TypeAtSource = GetTypeAtSource(reader.GetValueById(DataType).ToString(),
+                            reader.GetValueById(CharacterMaxLength))
                     };
+                    schema?.Properties.Add(property);
                 }
 
-                // add column to schema
-                var property = new Property
+                if (schema != null)
                 {
-                    Id = $"`{reader.GetValueById(ColumnName)}`",
-                    Name = reader.GetValueById(ColumnName).ToString(),
-                    IsKey = reader.GetValueById(ColumnKey).ToString() == "PRI",
-                    IsNullable = reader.GetValueById(IsNullable).ToString() == "YES",
-                    Type = GetType(reader.GetValueById(DataType).ToString()),
-                    TypeAtSource = GetTypeAtSource(reader.GetValueById(DataType).ToString(),
-                        reader.GetValueById(CharacterMaxLength))
-                };
-                schema?.Properties.Add(property);
+                    // get sample and count
+                    yield return await AddSampleAndCount(connFactory, schema, sampleSize);
+                }
             }
-
-            await conn.CloseAsync();
-
-            if (schema != null)
+            finally
             {
-                // get sample and count
-                yield return await AddSampleAndCount(connFactory, schema, sampleSize);
+                await conn.CloseAsync();
             }
         }
 
