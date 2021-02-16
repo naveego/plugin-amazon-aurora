@@ -24,6 +24,11 @@ namespace PluginAmazonAurora.API.Replication
                 errors.Add("Version Record table name is empty.");
             }
 
+            if (data.GoldenTableName == data.VersionTableName)
+            {
+                errors.Add("Golden Record Table and Version Record table cannot have the same name.");
+            }
+            
             return errors;
         }
     }

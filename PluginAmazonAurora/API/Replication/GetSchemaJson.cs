@@ -3,11 +3,11 @@ using Newtonsoft.Json;
 
 namespace PluginAmazonAurora.API.Replication
 {
-    public static partial class Replication
+  public static partial class Replication
+  {
+    public static string GetSchemaJson()
     {
-        public static string GetSchemaJson()
-        {
-            var schemaJsonObj = new Dictionary<string, object>
+      var schemaJsonObj = new Dictionary<string, object>
             {
                 {"type", "object"},
                 {"properties", new Dictionary<string, object>
@@ -27,7 +27,7 @@ namespace PluginAmazonAurora.API.Replication
                     {"VersionTableName", new Dictionary<string, string>
                     {
                         {"type", "string"},
-                        {"title", "Version Record Bucket Name"},
+                        {"title", "Version Record Table Name"},
                         {"description", "Name for your version record table in Amazon Aurora"},
                     }},
                 }},
@@ -38,8 +38,8 @@ namespace PluginAmazonAurora.API.Replication
                     "VersionTableName"
                 }}
             };
-            
-            return JsonConvert.SerializeObject(schemaJsonObj);
-        }
+
+      return JsonConvert.SerializeObject(schemaJsonObj);
     }
+  }
 }
