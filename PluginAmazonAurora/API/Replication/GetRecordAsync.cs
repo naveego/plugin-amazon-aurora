@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Naveego.Sdk.Logging;
 using PluginAmazonAurora.API.Factory;
 using PluginAmazonAurora.DataContracts;
-using PluginAmazonAurora.Helper;
 
 namespace PluginAmazonAurora.API.Replication
 {

@@ -1,11 +1,11 @@
 using System;
 using System.Threading.Tasks;
+using Naveego.Sdk.Logging;
 using Naveego.Sdk.Plugins;
 using Newtonsoft.Json;
 using PluginAmazonAurora.API.Factory;
+using PluginAmazonAurora.API.Utility;
 using PluginAmazonAurora.DataContracts;
-using PluginAmazonAurora.Helper;
-using Constants = PluginAmazonAurora.API.Utility.Constants;
 
 namespace PluginAmazonAurora.API.Replication
 {
