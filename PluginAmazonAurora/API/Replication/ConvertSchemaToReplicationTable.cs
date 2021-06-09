@@ -36,11 +36,11 @@ namespace PluginAmazonAurora.API.Replication
             switch (dataType)
             {
                 case PropertyType.Datetime:
-                    return "varchar(255)";
+                    return "datetime";
                 case PropertyType.Date:
-                    return "varchar(255)";
+                    return "date";
                 case PropertyType.Time:
-                    return "varchar(255)";
+                    return "time";
                 case PropertyType.Integer:
                     return "int";
                 case PropertyType.Decimal:

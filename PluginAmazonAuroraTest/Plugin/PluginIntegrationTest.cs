@@ -18,10 +18,10 @@ namespace PluginAmazonAuroraTest.Plugin
         {
             return new Settings
             {
-                Hostname = "150.136.152.223",
-                Database = "classicmodels",
-                Username = "root",
-                Password = "dtC5&CFiQ$9j"
+                Hostname = "",
+                Database = "",
+                Username = "",
+                Password = ""
             };
         }
 
@@ -58,6 +58,50 @@ namespace PluginAmazonAuroraTest.Plugin
                         Id = "Name",
                         Name = "Name",
                         Type = PropertyType.String
+                    }
+                }
+            };
+        }
+        
+        private Schema GetTestReplicationSchema(string id = "test", string name = "test", string query = "")
+        {
+            return new Schema
+            {
+                Id = id,
+                Name = name,
+                Query = query,
+                Properties =
+                {
+                    new Property
+                    {
+                        Id = "Id",
+                        Name = "Id",
+                        Type = PropertyType.Integer,
+                        IsKey = true
+                    },
+                    new Property
+                    {
+                        Id = "Name",
+                        Name = "Name",
+                        Type = PropertyType.String
+                    },
+                    new Property
+                    {
+                        Id = "DateTime",
+                        Name = "DateTime",
+                        Type = PropertyType.Datetime
+                    },
+                    new Property
+                    {
+                        Id = "Date",
+                        Name = "Date",
+                        Type = PropertyType.Date
+                    },
+                    new Property
+                    {
+                        Id = "Time",
+                        Name = "Time",
+                        Type = PropertyType.Time
                     }
                 }
             };
@@ -604,7 +648,7 @@ namespace PluginAmazonAuroraTest.Plugin
 
             var prepareWriteRequest = new PrepareWriteRequest()
             {
-                Schema = GetTestSchema(),
+                Schema = GetTestReplicationSchema(),
                 CommitSlaSeconds = 1000,
                 Replication = new ReplicationWriteRequest
                 {
@@ -632,13 +676,13 @@ namespace PluginAmazonAuroraTest.Plugin
                         Action = Record.Types.Action.Upsert,
                         CorrelationId = "test",
                         RecordId = "record1",
-                        DataJson = "{\"Id\":1,\"Name\":\"Test Company\"}",
+                        DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Now}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\"}}",
                         Versions =
                         {
                             new RecordVersion
                             {
                                 RecordId = "version1",
-                                DataJson = "{\"Id\":1,\"Name\":\"Test Company\"}",
+                                DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Now}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\"}}",
                             }
                         }
                     }
