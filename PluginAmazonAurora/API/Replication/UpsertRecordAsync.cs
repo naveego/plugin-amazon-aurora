@@ -60,7 +60,7 @@ namespace PluginAmazonAurora.API.Replication
                             case "datetime":
                                 if (DateTime.TryParse(rawValue.ToString(), out var datetime))
                                 {
-                                    rawValue = datetime.ToString("yyyy-MM-dd hh:mm:ss");
+                                    rawValue = datetime.ToString("yyyy-MM-dd HH:mm:ss");
                                 }
                                 else
                                 {

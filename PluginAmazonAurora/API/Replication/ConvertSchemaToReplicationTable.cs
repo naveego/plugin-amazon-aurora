@@ -44,7 +44,7 @@ namespace PluginAmazonAurora.API.Replication
                 case PropertyType.Integer:
                     return "int";
                 case PropertyType.Decimal:
-                    return "decimal";
+                    return "decimal(38,18)";
                 case PropertyType.Float:
                     return "double";
                 case PropertyType.Bool:

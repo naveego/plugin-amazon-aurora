@@ -102,7 +102,13 @@ namespace PluginAmazonAuroraTest.Plugin
                         Id = "Time",
                         Name = "Time",
                         Type = PropertyType.Time
-                    }
+                    },
+                    new Property
+                    {
+                        Id = "Decimal",
+                        Name = "Decimal",
+                        Type = PropertyType.Decimal
+                    },
                 }
             };
         }
@@ -676,13 +682,13 @@ namespace PluginAmazonAuroraTest.Plugin
                         Action = Record.Types.Action.Upsert,
                         CorrelationId = "test",
                         RecordId = "record1",
-                        DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Now}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\"}}",
+                        DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Today}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\",\"Decimal\":\"13.04\"}}",
                         Versions =
                         {
                             new RecordVersion
                             {
                                 RecordId = "version1",
-                                DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Now}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\"}}",
+                                DataJson = $"{{\"Id\":1,\"Name\":\"Test Company\",\"DateTime\":\"{DateTime.Now}\",\"Date\":\"{DateTime.Now.Date}\",\"Time\":\"{DateTime.Now:hh:mm:ss}\",\"Decimal\":\"13.04\"}}",
                             }
                         }
                     }
