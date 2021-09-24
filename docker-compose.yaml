@@ -1,0 +1,13 @@
+version: "2.0"
+services:
+  mysql:
+    image: mysql:8.0.26
+    ports:
+      - 3306:3306
+    environment:
+      ACCEPT_EULA: Y
+      MYSQL_ROOT_PASSWORD: n5o_admin
+      MYSQL_DATABASE: test_db
+    logging:
+      driver: json-file
+    network_mode: bridge

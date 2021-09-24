@@ -18,10 +18,11 @@ namespace PluginAmazonAuroraTest.Plugin
         {
             return new Settings
             {
-                Hostname = "",
-                Database = "",
-                Username = "",
-                Password = ""
+                Hostname = "localhost",
+                Database = "test_db",
+                Port = "3306",
+                Username = "root",
+                Password = "n5o_admin"
             };
         }
 
@@ -176,6 +177,52 @@ namespace PluginAmazonAuroraTest.Plugin
             Assert.IsType<ConnectResponse>(response);
             Assert.Equal("", response.SettingsError);
             Assert.Equal("", response.ConnectionError);
+            Assert.Equal("", response.OauthError);
+
+            // cleanup
+            await channel.ShutdownAsync();
+            await server.ShutdownAsync();
+        }
+        
+        [Fact]
+        public async Task ConnectFailedTest()
+        {
+            // setup
+            Server server = new Server
+            {
+                Services = {Publisher.BindService(new PluginMySQL.Plugin.Plugin())},
+                Ports = {new ServerPort("localhost", 0, ServerCredentials.Insecure)}
+            };
+            server.Start();
+
+            var port = server.Ports.First().BoundPort;
+
+            var channel = new Channel($"localhost:{port}", ChannelCredentials.Insecure);
+            var client = new Publisher.PublisherClient(channel);
+
+            const string wrongUsername = "rootx";
+
+            var request = new ConnectRequest
+            {
+                SettingsJson = JsonConvert.SerializeObject(new Settings
+                {
+                    Hostname = "localhost",
+                    Database = "test_db",
+                    Port = "3306",
+                    Username = wrongUsername,
+                    Password = "n5o_admin"
+                }),
+                OauthConfiguration = new OAuthConfiguration(),
+                OauthStateJson = ""
+            };
+
+            // act
+            var response = client.Connect(request);
+
+            // assert
+            Assert.IsType<ConnectResponse>(response);
+            Assert.Equal("", response.SettingsError);
+            Assert.Equal($"Access denied for user '{wrongUsername}'@'172.17.0.1' (using password: YES)", response.ConnectionError);
             Assert.Equal("", response.OauthError);
 
             // cleanup
