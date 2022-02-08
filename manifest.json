@@ -32,7 +32,15 @@
   },
   "configSchema": {
     "ui": {
-      "ui:order": ["Hostname", "Port", "Database", "Username", "Password"],
+      "ui:order": [
+        "Hostname",
+        "Port",
+        "Database",
+        "Username",
+        "Password",
+        "DisableDiscoveryCounts",
+        "AppendConnectionString"
+      ],
       "Password": {
         "ui:widget": "password"
       }
@@ -64,6 +72,17 @@
           "type": "string",
           "title": "Database",
           "description": "The Database within the Amazon Aurora Server"
+        },
+        "DisableDiscoveryCounts": {
+          "type": "boolean",
+          "title": "Disable Discovery Counts",
+          "description": "(Optional) Performance improvement to discovery that disables counting the records for a schema",
+          "default": false
+        },
+        "AppendConnectionString": {
+          "type": "string",
+          "title": "Append Connection String",
+          "description": "Value to be appended to the end of the connection string"
         }
       },
       "required": ["Hostname", "Username", "Password", "Database"]

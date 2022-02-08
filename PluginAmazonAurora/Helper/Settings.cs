@@ -9,6 +9,8 @@ namespace PluginAmazonAurora.Helper
         public string Username { get; set; }
         public string Password { get; set; }
         public string Database { get; set; }
+        public bool DisableDiscoveryCounts { get; set; } = false;
+        public string AppendConnectionString { get; set; }
 
         /// <summary>
         /// Validates the settings input object

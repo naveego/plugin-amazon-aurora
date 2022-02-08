@@ -8,5 +8,6 @@ namespace PluginAmazonAurora.API.Factory
         IConnection GetConnection();
         IConnection GetConnection(string database);
         ICommand GetCommand(string commandText, IConnection conn);
+        Settings GetSettings();
     }
 }
