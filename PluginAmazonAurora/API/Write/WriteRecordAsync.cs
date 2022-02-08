@@ -41,20 +41,28 @@ namespace PluginAmazonAurora.API.Write
 
                 foreach (var property in schema.Properties)
                 {
-                    if (!recordMap.ContainsKey(property.Id))
+                    // if property is key then it maps the golden record id
+                    if (property.IsKey)
                     {
-                        throw new Exception($"{property.Id} is required by the stored procedure and is not mapped on the job.");
-                    }
-
-                    var rawValue = recordMap[property.Id];
-                    
-                    if (rawValue == null || string.IsNullOrWhiteSpace(rawValue.ToString()))
-                    {
-                        querySb.Append("NULL,");
+                        querySb.Append($"'{Utility.Utility.GetSafeString(Utility.Utility.GetSafeString(record.RecordId, "'", "''"))}',");
                     }
                     else
                     {
-                        querySb.Append($"'{Utility.Utility.GetSafeString(Utility.Utility.GetSafeString(rawValue.ToString(), "'", "''"))}',");
+                        if (!recordMap.ContainsKey(property.Id))
+                        {
+                            throw new Exception($"{property.Id} is required by the stored procedure and is not mapped on the job.");
+                        }
+
+                        var rawValue = recordMap[property.Id];
+                    
+                        if (rawValue == null || string.IsNullOrWhiteSpace(rawValue.ToString()))
+                        {
+                            querySb.Append("NULL,");
+                        }
+                        else
+                        {
+                            querySb.Append($"'{Utility.Utility.GetSafeString(Utility.Utility.GetSafeString(rawValue.ToString(), "'", "''"))}',");
+                        }
                     }
                 }
 

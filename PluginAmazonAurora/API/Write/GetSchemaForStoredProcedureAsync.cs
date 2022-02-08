@@ -18,7 +18,7 @@ AND SPECIFIC_NAME = '{1}'
 ORDER BY ORDINAL_POSITION ASC";
 
         public static async Task<Schema> GetSchemaForStoredProcedureAsync(IConnectionFactory connFactory,
-            WriteStoredProcedure storedProcedure)
+            WriteStoredProcedure storedProcedure, string goldenRecordIdParm)
         {
             var schema = new Schema
             {
@@ -45,8 +45,17 @@ ORDER BY ORDINAL_POSITION ASC";
                     Name = reader.GetValueById(ParamName).ToString(),
                     Description = "",
                     Type = Discover.Discover.GetType(reader.GetValueById(DataType).ToString()),
-                    TypeAtSource = reader.GetValueById(DataType).ToString()
+                    TypeAtSource = reader.GetValueById(DataType).ToString(),
                 };
+                
+                // mark as key if the property is to map the golden record id
+                if (!string.IsNullOrWhiteSpace(goldenRecordIdParm))
+                {
+                    if (property.Id == goldenRecordIdParm)
+                    {
+                        property.IsKey = true;
+                    }
+                }
 
                 schema.Properties.Add(property);
             }

@@ -21,6 +21,12 @@ namespace PluginAmazonAurora.API.Write
                         {"description", "Stored Procedure to call"},
                         {"enum", storedProcedures.Select(s => s.GetId())}
                     }},
+                    {"GoldenRecordIdParam", new Dictionary<string, object>
+                    {
+                        {"type", "string"},
+                        {"title", "Golden Record Id Parameter"},
+                        {"description", "(Optional) Name of the parameter to map the Golden Record Id to as an input."},
+                    }},
                 }},
                 {"required", new []
                 {

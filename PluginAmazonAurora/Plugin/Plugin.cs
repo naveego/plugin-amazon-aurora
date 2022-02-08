@@ -313,7 +313,26 @@ namespace PluginAmazonAurora.Plugin
                 var storedProcedure = storedProcedures.Find(s => s.GetId() == formData.StoredProcedure);
 
                 // base schema to return
-                var schema = await Write.GetSchemaForStoredProcedureAsync(_connectionFactory, storedProcedure);
+                var schema = await Write.GetSchemaForStoredProcedureAsync(_connectionFactory, storedProcedure, formData.GoldenRecordIdParam);
+
+                if (!string.IsNullOrWhiteSpace(formData.GoldenRecordIdParam))
+                {
+                    if (schema.Properties.All(p => p.Id != formData.GoldenRecordIdParam))
+                    {
+                        return new ConfigureWriteResponse
+                        {
+                            Form = new ConfigurationFormResponse
+                            {
+                                DataJson = request.Form.DataJson,
+                                Errors = { $"{formData.GoldenRecordIdParam} was specified as the Golden Record Id Parameter but was not a parameter on the stored procedure {formData.StoredProcedure} (available parameters: {string.Join(",", schema.Properties.Select(p => p.Id))})" },
+                                SchemaJson = schemaJson,
+                                UiJson = uiJson,
+                                StateJson = request.Form.StateJson
+                            },
+                            Schema = schema
+                        };
+                    }
+                }
 
                 return new ConfigureWriteResponse
                 {
@@ -413,7 +432,7 @@ namespace PluginAmazonAurora.Plugin
             Logger.SetLogPrefix(request.DataVersions.JobId);
             Logger.Info("Preparing write...");
             _server.WriteConfigured = false;
-            
+
             _server.WriteSettings = new WriteSettings
             {
                 CommitSLA = request.CommitSlaSeconds,
