@@ -93,7 +93,7 @@ namespace PluginAmazonAurora.API.Replication
                             }
                             
                             querySb.Append(rawValue != null
-                                ? $"'{Utility.Utility.GetSafeString(rawValue.ToString(), "'", "''")}',"
+                                ? $"'{Utility.Utility.GetSafeString(rawValue.ToString(), ("'", "''"), ("\\", "\\\\"))}',"
                                 : $"NULL,");
                         }
                         else

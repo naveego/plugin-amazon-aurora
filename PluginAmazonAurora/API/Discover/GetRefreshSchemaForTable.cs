@@ -24,7 +24,7 @@ WHERE t.TABLE_SCHEMA NOT IN ('mysql', 'information_schema', 'performance_schema'
 AND t.TABLE_SCHEMA = '{0}'
 AND t.TABLE_NAME = '{1}' 
 
-ORDER BY t.TABLE_NAME";
+ORDER BY t.TABLE_NAME, c.ORDINAL_POSITION";
 
         public static async Task<Schema> GetRefreshSchemaForTable(IConnectionFactory connFactory, Schema schema,
             int sampleSize = 5)
