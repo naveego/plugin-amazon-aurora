@@ -17,6 +17,12 @@ namespace PluginAmazonAurora.API.Replication
             Dictionary<string, object> recordMap)
         {
             var conn = connFactory.GetConnection();
+            var escapeList = new[]
+            {
+                ("\\", "\\\\"),
+                ("'", "\\'"),
+                ("@", "\\@")
+            };
             
             try
             {
@@ -93,7 +99,7 @@ namespace PluginAmazonAurora.API.Replication
                             }
                             
                             querySb.Append(rawValue != null
-                                ? $"'{Utility.Utility.GetSafeString(rawValue.ToString(), ("'", "''"), ("\\", "\\\\"))}',"
+                                ? $"'{Utility.Utility.GetSafeString(rawValue.ToString(), escapeList)}',"
                                 : $"NULL,");
                         }
                         else
@@ -173,7 +179,7 @@ namespace PluginAmazonAurora.API.Replication
                             }
 
                             querySb.Append(rawValue != null
-                                ? $"{Utility.Utility.GetSafeName(column.ColumnName)}='{Utility.Utility.GetSafeString(rawValue.ToString(), "'", "''")}',"
+                                ? $"{Utility.Utility.GetSafeName(column.ColumnName)}='{Utility.Utility.GetSafeString(rawValue.ToString(), escapeList)}',"
                                 : $"{Utility.Utility.GetSafeName(column.ColumnName)}=NULL,");
                             }
                             else
