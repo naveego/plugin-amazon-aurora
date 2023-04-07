@@ -4,7 +4,7 @@
   "description": "Publisher which connects to Amazon Aurora",
   "apiVersion": "2",
   "versionDescription": "Version 2",
-  "version": "1.1.2",
+  "version": "1.5.3",
   "iconFile": "icon.png",
   "executable": "PluginAmazonAurora",
   "kind": "publisher",
